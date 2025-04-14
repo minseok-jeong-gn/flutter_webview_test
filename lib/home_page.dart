@@ -34,6 +34,8 @@ const testConstFloat = 1234.567;
         ),
         initialUserScripts: UnmodifiableListView([userScript]),
         onWebViewCreated: (controller) {
+          // controller.addUserScript(userScript: userScript)
+
           // controller.addJavaScriptHandler(handlerName: handlerName, callback: callback)
           // controller.addJavaScriptHandler(handlerName: handlerName, callback: callback)
           // controller.addUserScript(userScript: UserScript(source: '', injectionTime: UserScriptInjectionTime.AT_DOCUMENT_START));
