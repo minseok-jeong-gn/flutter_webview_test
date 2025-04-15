@@ -1,18 +1,19 @@
 name: inappwebview_handler_test
 description: "A new Flutter project."
-publish_to: 'none'
+publish_to: "none"
 
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.3.0 <4.0.0'
+  sdk: ">=3.3.0 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.6
   flutter_inappwebview: ^6.0.0
-  
+  device_info_plus: ^11.3.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -20,5 +21,3 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-
-  
