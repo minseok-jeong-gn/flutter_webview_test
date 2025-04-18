@@ -1,10 +1,23 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:gap/gap.dart';
+import 'package:inappwebview_handler_test/long_duration_transition_page_route.dart';
+import 'package:inappwebview_handler_test/ui_helper.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:webview_flutter_android/webview_flutter_android.dart';
+import 'package:webview_flutter_platform_interface/webview_flutter_platform_interface.dart';
 
+const flutterVersion = 'v3.27.4';
 const benchMarkTestWebSiteUrl = 'https://browserbench.org/';
+const naverMapUrl = 'https://map.naver.com/';
+
+enum PlatformViewImplementationType {
+  hc, //hybrid composition
+  tlhc, //texture layer hybrid composition
+}
 
 class WebviewPerformanceTestPage extends StatefulWidget {
   const WebviewPerformanceTestPage({super.key});
@@ -20,35 +33,164 @@ class _WebviewPerformanceTestPageState extends State<WebviewPerformanceTestPage>
       appBar: AppBar(
         title: const Text('Webview PerformanceTest'),
       ),
-      body: Column(
-        children: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).push(MaterialPageRoute(builder: (context) => const _PerfTestFlutterInAppWebView()));
-            },
-            child: const Text('flutter_inappwebview'),
-          ),
-          TextButton(
-              onPressed: () {
-                Navigator.of(context).push(MaterialPageRoute(builder: (context) => const _PeftTestWebViewFlutter()));
-              },
-              child: const Text('webview_flutter')),
-        ],
+      body: SizedBox(
+        width: double.infinity,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  children: [
+                    Text(
+                      'flutter_inappwebview',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    const Gap(24.0),
+                    Wrap(
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              LongDurationTransitionPageRoute(
+                                builder: (context) => const _PerfTestFlutterInAppWebView(
+                                  platformViewImplementationType: PlatformViewImplementationType.hc,
+                                  url: benchMarkTestWebSiteUrl,
+                                ),
+                              ),
+                            );
+                          },
+                          child: Text(PlatformViewImplementationType.hc.name),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              LongDurationTransitionPageRoute(
+                                builder: (context) => const _PerfTestFlutterInAppWebView(
+                                  platformViewImplementationType: PlatformViewImplementationType.tlhc,
+                                  url: benchMarkTestWebSiteUrl,
+                                ),
+                              ),
+                            );
+                          },
+                          child: Text(PlatformViewImplementationType.tlhc.name),
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            ),
+            const Gap(16.0),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  children: [
+                    Text(
+                      'webview_flutter',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    const Gap(24.0),
+                    Wrap(
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              LongDurationTransitionPageRoute(
+                                builder: (context) => const _PeftTestWebViewFlutter(
+                                  platformViewImplementationType: PlatformViewImplementationType.hc,
+                                  url: benchMarkTestWebSiteUrl,
+                                ),
+                              ),
+                            );
+                          },
+                          child: Text(PlatformViewImplementationType.hc.name),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              LongDurationTransitionPageRoute(
+                                builder: (context) => const _PeftTestWebViewFlutter(
+                                  platformViewImplementationType: PlatformViewImplementationType.tlhc,
+                                  url: benchMarkTestWebSiteUrl,
+                                ),
+                              ),
+                            );
+                          },
+                          child: Text(PlatformViewImplementationType.tlhc.name),
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
 class _PerfTestFlutterInAppWebView extends StatelessWidget {
-  const _PerfTestFlutterInAppWebView({super.key});
+  const _PerfTestFlutterInAppWebView({
+    required this.platformViewImplementationType,
+    required this.url,
+  });
+
+  final PlatformViewImplementationType platformViewImplementationType;
+  final String url;
 
   @override
   Widget build(BuildContext context) {
+    final bool useHybridComposition = switch (platformViewImplementationType) {
+      PlatformViewImplementationType.hc => true,
+      PlatformViewImplementationType.tlhc => false,
+    };
+
+    final String title = () {
+      final stringBuffer = StringBuffer();
+      stringBuffer.write('flutter_inappwebview');
+      if (Platform.isAndroid) {
+        stringBuffer.write(' (${platformViewImplementationType.name})');
+      } else {
+        stringBuffer.write(' ');
+      }
+      stringBuffer.write(flutterVersion);
+      return stringBuffer.toString();
+    }();
+
     return Scaffold(
-      appBar: AppBar(title: const Text('flutter_inappwebview')),
+      appBar: AppBar(
+        title: FittedBox(child: Text(title)),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                LongDurationTransitionPageRoute(
+                  builder: (context) => _PerfTestFlutterInAppWebView(
+                    platformViewImplementationType: platformViewImplementationType,
+                    url: url,
+                  ),
+                ),
+              );
+            },
+            child: const Text('Push'),
+          ),
+          TextButton(
+            onPressed: () {
+              UiHelper.showBottomSheet(context);
+            },
+            child: const Text('BS'),
+          ),
+        ],
+      ),
       body: InAppWebView(
+        initialSettings: InAppWebViewSettings(useHybridComposition: useHybridComposition),
         initialUrlRequest: URLRequest(
-          url: WebUri(benchMarkTestWebSiteUrl),
+          url: WebUri(url),
         ),
         onWebViewCreated: (controller) {
           controller.getSettings().then((v) {
@@ -61,37 +203,105 @@ class _PerfTestFlutterInAppWebView extends StatelessWidget {
 }
 
 class _PeftTestWebViewFlutter extends StatefulWidget {
-  const _PeftTestWebViewFlutter({super.key});
+  const _PeftTestWebViewFlutter({
+    required this.platformViewImplementationType,
+    required this.url,
+  });
+
+  final PlatformViewImplementationType platformViewImplementationType;
+  final String url;
 
   @override
   State<_PeftTestWebViewFlutter> createState() => _PeftTestWebViewFlutterState();
 }
 
 class _PeftTestWebViewFlutterState extends State<_PeftTestWebViewFlutter> {
-  late final WebViewController _controller;
+  WebViewController? _controller;
+  PlatformWebViewController? _androidWebViewController;
 
   @override
   void initState() {
     super.initState();
-    _controller = WebViewController()
-      ..loadRequest(Uri.parse(benchMarkTestWebSiteUrl))
-      ..setOnConsoleMessage((javascriptConsoleMessage) {
-        log(javascriptConsoleMessage.toString());
-      })
-      ..setJavaScriptMode(JavaScriptMode.unrestricted);
+    if (Platform.isAndroid) {
+      _androidWebViewController = AndroidWebViewController(AndroidWebViewControllerCreationParams())
+        ..loadRequest(LoadRequestParams(uri: Uri.parse(widget.url)))
+        ..setOnConsoleMessage((javascriptConsoleMessage) {
+          log(javascriptConsoleMessage.toString());
+        })
+        ..setJavaScriptMode(JavaScriptMode.unrestricted);
+    } else {
+      _controller = WebViewController()
+        ..loadRequest(Uri.parse(widget.url))
+        ..setOnConsoleMessage((javascriptConsoleMessage) {
+          log(javascriptConsoleMessage.toString());
+        })
+        ..setJavaScriptMode(JavaScriptMode.unrestricted);
 
-    _controller.getUserAgent().then((v) {
-      log('webview_flutter user-agnet info:\n$v');
-    });
+      _controller?.getUserAgent().then((v) {
+        log('webview_flutter user-agnet info:\n$v');
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final String title = () {
+      final stringBuffer = StringBuffer();
+      stringBuffer.write('webview_flutter');
+      if (Platform.isAndroid) {
+        stringBuffer.write(' (${widget.platformViewImplementationType})');
+      } else {
+        stringBuffer.write(' ');
+      }
+      stringBuffer.write(flutterVersion);
+      return stringBuffer.toString();
+    }();
+
+    late Widget webViewWidget;
+    if (Platform.isAndroid) {
+      switch (widget.platformViewImplementationType) {
+        case PlatformViewImplementationType.hc:
+          webViewWidget = WebViewWidget.fromPlatformCreationParams(
+              params: AndroidWebViewWidgetCreationParams(
+            controller: _androidWebViewController!,
+            displayWithHybridComposition: true,
+          ));
+        case PlatformViewImplementationType.tlhc:
+          webViewWidget = WebViewWidget.fromPlatformCreationParams(
+              params: AndroidWebViewWidgetCreationParams(
+            controller: _androidWebViewController!,
+            displayWithHybridComposition: false,
+          ));
+      }
+    } else {
+      webViewWidget = WebViewWidget(controller: _controller!);
+    }
     return Scaffold(
-      appBar: AppBar(title: const Text('webview_flutter')),
-      body: WebViewWidget(
-        controller: _controller,
+      appBar: AppBar(
+        title: FittedBox(child: Text(title)),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                LongDurationTransitionPageRoute(
+                  builder: (context) => _PeftTestWebViewFlutter(
+                    platformViewImplementationType: widget.platformViewImplementationType,
+                    url: widget.url,
+                  ),
+                ),
+              );
+            },
+            child: const Text('Push'),
+          ),
+          TextButton(
+            onPressed: () {
+              UiHelper.showBottomSheet(context);
+            },
+            child: const Text('BS'),
+          ),
+        ],
       ),
+      body: webViewWidget,
     );
   }
 }
