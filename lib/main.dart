@@ -33,7 +33,9 @@ class MyApp extends StatelessWidget {
           },
         ),
       ),
-      home: const WebviewPerformanceTestPage(),
+      home: const WebviewPerformanceTestPage(
+        testWebsite: TestWebsite.naverMap,
+      ),
     );
   }
 }

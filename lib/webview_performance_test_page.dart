@@ -11,16 +11,30 @@ import 'package:webview_test/long_duration_transition_page_route.dart';
 import 'package:webview_test/ui_helper.dart';
 
 const flutterVersion = 'v3.29.3';
-const benchMarkTestWebSiteUrl = 'https://browserbench.org/';
-const naverMapUrl = 'https://map.naver.com/';
 
 enum PlatformViewImplementationType {
   hc, //hybrid composition
   tlhc, //texture layer hybrid composition
 }
 
+enum TestWebsite {
+  benchMarkTest,
+  naverMap,
+  ;
+
+  String get url => switch (this) {
+        benchMarkTest => 'https://browserbench.org/',
+        naverMap => 'https://map.naver.com/',
+      };
+}
+
 class WebviewPerformanceTestPage extends StatefulWidget {
-  const WebviewPerformanceTestPage({super.key});
+  const WebviewPerformanceTestPage({
+    super.key,
+    required this.testWebsite,
+  });
+
+  final TestWebsite testWebsite;
 
   @override
   State<WebviewPerformanceTestPage> createState() => _WebviewPerformanceTestPageState();
@@ -29,6 +43,7 @@ class WebviewPerformanceTestPage extends StatefulWidget {
 class _WebviewPerformanceTestPageState extends State<WebviewPerformanceTestPage> {
   @override
   Widget build(BuildContext context) {
+    final String url = widget.testWebsite.url;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Webview PerformanceTest'),
@@ -38,95 +53,111 @@ class _WebviewPerformanceTestPageState extends State<WebviewPerformanceTestPage>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  children: [
-                    Text(
-                      'flutter_inappwebview',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const Gap(24.0),
-                    Wrap(
-                      children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.of(context).push(
-                              LongDurationTransitionPageRoute(
-                                builder: (context) => const _PerfTestFlutterInAppWebView(
-                                  platformViewImplementationType: PlatformViewImplementationType.hc,
-                                  url: naverMapUrl,
-                                ),
-                              ),
-                            );
-                          },
-                          child: Text(PlatformViewImplementationType.hc.name),
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.of(context).push(
-                              LongDurationTransitionPageRoute(
-                                builder: (context) => const _PerfTestFlutterInAppWebView(
-                                  platformViewImplementationType: PlatformViewImplementationType.tlhc,
-                                  url: naverMapUrl,
-                                ),
-                              ),
-                            );
-                          },
-                          child: Text(PlatformViewImplementationType.tlhc.name),
-                        ),
-                      ],
-                    )
-                  ],
-                ),
-              ),
-            ),
+            _buildFlutterInAppWebViewCardWidget(context, url),
             const Gap(16.0),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  children: [
-                    Text(
-                      'webview_flutter',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const Gap(24.0),
-                    Wrap(
-                      children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.of(context).push(
-                              LongDurationTransitionPageRoute(
-                                builder: (context) => const _PeftTestWebViewFlutter(
-                                  platformViewImplementationType: PlatformViewImplementationType.hc,
-                                  url: naverMapUrl,
-                                ),
-                              ),
-                            );
-                          },
-                          child: Text(PlatformViewImplementationType.hc.name),
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.of(context).push(
-                              LongDurationTransitionPageRoute(
-                                builder: (context) => const _PeftTestWebViewFlutter(
-                                  platformViewImplementationType: PlatformViewImplementationType.tlhc,
-                                  url: naverMapUrl,
-                                ),
-                              ),
-                            );
-                          },
-                          child: Text(PlatformViewImplementationType.tlhc.name),
-                        ),
-                      ],
-                    )
-                  ],
-                ),
-              ),
+            _buildWebViewFlutterCardWidget(context, url),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Card _buildWebViewFlutterCardWidget(
+    final BuildContext context,
+    final String url,
+  ) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            Text(
+              'webview_flutter',
+              style: Theme.of(context).textTheme.titleLarge,
             ),
+            const Gap(24.0),
+            Wrap(
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      LongDurationTransitionPageRoute(
+                        builder: (context) => _PeftTestWebViewFlutter(
+                          platformViewImplementationType: PlatformViewImplementationType.hc,
+                          url: url,
+                        ),
+                      ),
+                    );
+                  },
+                  child: Text(PlatformViewImplementationType.hc.name),
+                ),
+                if (Platform.isAndroid)
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        LongDurationTransitionPageRoute(
+                          builder: (context) => _PeftTestWebViewFlutter(
+                            platformViewImplementationType: PlatformViewImplementationType.tlhc,
+                            url: url,
+                          ),
+                        ),
+                      );
+                    },
+                    child: Text(PlatformViewImplementationType.tlhc.name),
+                  ),
+              ],
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Card _buildFlutterInAppWebViewCardWidget(
+    final BuildContext context,
+    final String url,
+  ) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            Text(
+              'flutter_inappwebview',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const Gap(24.0),
+            Wrap(
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      LongDurationTransitionPageRoute(
+                        builder: (context) => _PerfTestFlutterInAppWebView(
+                          platformViewImplementationType: PlatformViewImplementationType.hc,
+                          url: url,
+                        ),
+                      ),
+                    );
+                  },
+                  child: Text(PlatformViewImplementationType.hc.name),
+                ),
+                if (Platform.isAndroid)
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        LongDurationTransitionPageRoute(
+                          builder: (context) => _PerfTestFlutterInAppWebView(
+                            platformViewImplementationType: PlatformViewImplementationType.tlhc,
+                            url: url,
+                          ),
+                        ),
+                      );
+                    },
+                    child: Text(PlatformViewImplementationType.tlhc.name),
+                  ),
+              ],
+            )
           ],
         ),
       ),
