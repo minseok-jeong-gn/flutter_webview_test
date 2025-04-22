@@ -1,4 +1,4 @@
-package com.example.inappwebview_handler_test
+package com.example.webview_test
 
 import io.flutter.embedding.android.FlutterActivity
 
