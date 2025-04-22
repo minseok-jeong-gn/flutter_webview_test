@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:webview_test/webview_performance_test_page.dart';
+import 'package:webview_test/test_list_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Webview Test',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: Colors.deepPurple,
@@ -33,9 +33,7 @@ class MyApp extends StatelessWidget {
           },
         ),
       ),
-      home: const WebviewPerformanceTestPage(
-        testWebsite: TestWebsite.naverMap,
-      ),
+      home: const TestListPage(),
     );
   }
 }
