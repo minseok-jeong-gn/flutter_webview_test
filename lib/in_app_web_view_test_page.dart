@@ -53,7 +53,7 @@ class _InAppWebViewTestPageState extends State<InAppWebViewTestPage> {
                   );
 
                   const benchMarkTestWebSite = 'https://browserbench.org/';
-                  const localTestWebsite = 'http://192.168.50.147:8080/index.html';
+                  // const localTestWebsite = 'http://192.168.50.147:8080/index.html';
                   controller.loadUrl(urlRequest: URLRequest(url: WebUri(benchMarkTestWebSite)));
                 },
                 onConsoleMessage: (controller, consoleMessage) {
