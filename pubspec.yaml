@@ -1,5 +1,5 @@
-name: inappwebview_handler_test
-description: "A new Flutter project."
+name: webview_test
+description: "webview_test"
 publish_to: "none"
 
 version: 1.0.0+1

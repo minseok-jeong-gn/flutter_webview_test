@@ -4,13 +4,13 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:gap/gap.dart';
-import 'package:inappwebview_handler_test/long_duration_transition_page_route.dart';
-import 'package:inappwebview_handler_test/ui_helper.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_platform_interface/webview_flutter_platform_interface.dart';
+import 'package:webview_test/long_duration_transition_page_route.dart';
+import 'package:webview_test/ui_helper.dart';
 
-const flutterVersion = 'v3.27.4';
+const flutterVersion = 'v3.29.3';
 const benchMarkTestWebSiteUrl = 'https://browserbench.org/';
 const naverMapUrl = 'https://map.naver.com/';
 
@@ -56,7 +56,7 @@ class _WebviewPerformanceTestPageState extends State<WebviewPerformanceTestPage>
                               LongDurationTransitionPageRoute(
                                 builder: (context) => const _PerfTestFlutterInAppWebView(
                                   platformViewImplementationType: PlatformViewImplementationType.hc,
-                                  url: benchMarkTestWebSiteUrl,
+                                  url: naverMapUrl,
                                 ),
                               ),
                             );
@@ -69,7 +69,7 @@ class _WebviewPerformanceTestPageState extends State<WebviewPerformanceTestPage>
                               LongDurationTransitionPageRoute(
                                 builder: (context) => const _PerfTestFlutterInAppWebView(
                                   platformViewImplementationType: PlatformViewImplementationType.tlhc,
-                                  url: benchMarkTestWebSiteUrl,
+                                  url: naverMapUrl,
                                 ),
                               ),
                             );
@@ -101,7 +101,7 @@ class _WebviewPerformanceTestPageState extends State<WebviewPerformanceTestPage>
                               LongDurationTransitionPageRoute(
                                 builder: (context) => const _PeftTestWebViewFlutter(
                                   platformViewImplementationType: PlatformViewImplementationType.hc,
-                                  url: benchMarkTestWebSiteUrl,
+                                  url: naverMapUrl,
                                 ),
                               ),
                             );
@@ -114,7 +114,7 @@ class _WebviewPerformanceTestPageState extends State<WebviewPerformanceTestPage>
                               LongDurationTransitionPageRoute(
                                 builder: (context) => const _PeftTestWebViewFlutter(
                                   platformViewImplementationType: PlatformViewImplementationType.tlhc,
-                                  url: benchMarkTestWebSiteUrl,
+                                  url: naverMapUrl,
                                 ),
                               ),
                             );

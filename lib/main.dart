@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:inappwebview_handler_test/webview_performance_test_page.dart';
+import 'package:webview_test/webview_performance_test_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
