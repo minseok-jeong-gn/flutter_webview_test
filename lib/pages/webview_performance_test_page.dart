@@ -7,9 +7,9 @@ import 'package:gap/gap.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_platform_interface/webview_flutter_platform_interface.dart';
-import 'package:webview_test/long_duration_transition_page_route.dart';
-import 'package:webview_test/my_text.dart';
-import 'package:webview_test/ui_helper.dart';
+import 'package:webview_test/pages/long_duration_transition_page_route.dart';
+import 'package:webview_test/widgets/my_text.dart';
+import 'package:webview_test/utils/ui_helper.dart';
 
 const flutterVersion = 'v3.29.3';
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:webview_test/my_text.dart';
-import 'package:webview_test/webview_performance_test_page.dart';
+import 'package:webview_test/widgets/my_text.dart';
+import 'package:webview_test/pages/webview_performance_test_page.dart';
 
 class TestListPage extends StatelessWidget {
   const TestListPage({super.key});
