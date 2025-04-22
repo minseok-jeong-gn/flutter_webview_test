@@ -280,7 +280,7 @@ class _PeftTestWebViewFlutterState extends State<_PeftTestWebViewFlutter> {
       final stringBuffer = StringBuffer();
       stringBuffer.write('webview_flutter');
       if (Platform.isAndroid) {
-        stringBuffer.write(' (${widget.platformViewImplementationType})');
+        stringBuffer.write(' (${widget.platformViewImplementationType.name})');
       } else {
         stringBuffer.write(' ');
       }
