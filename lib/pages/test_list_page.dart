@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../widgets/my_text.dart';
+import 'in_app_web_view_handler_test_page.dart';
 import 'webview_scroll_test_page.dart';
 import 'webview_performance_test_page.dart';
 
@@ -51,6 +52,17 @@ class TestListPage extends StatelessWidget {
               );
             },
             title: MyText.large('웹뷰 스크롤'),
+          ),
+          ListTile(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const InAppWebViewHandlerTestPage(),
+                ),
+              );
+            },
+            title: MyText.large('인앱 웹뷰 핸들러'),
           ),
         ],
       ),

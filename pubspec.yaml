@@ -18,6 +18,8 @@ dependencies:
   webview_flutter_android: ^4.3.5
   webview_flutter_platform_interface: ^2.11.0
   webview_flutter_wkwebview: ^3.20.0
+  image_picker: ^1.1.2
+  mime: ^2.0.0
 
 dev_dependencies:
   flutter_test:
