@@ -9,14 +9,14 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 WebViewEnvironment? webViewEnvironment;
 
-class InAppWebViewTestPage extends StatefulWidget {
-  const InAppWebViewTestPage({super.key});
+class InAppWebViewHandlerTestPage extends StatefulWidget {
+  const InAppWebViewHandlerTestPage({super.key});
 
   @override
-  State<InAppWebViewTestPage> createState() => _InAppWebViewTestPageState();
+  State<InAppWebViewHandlerTestPage> createState() => _InAppWebViewHandlerTestPageState();
 }
 
-class _InAppWebViewTestPageState extends State<InAppWebViewTestPage> {
+class _InAppWebViewHandlerTestPageState extends State<InAppWebViewHandlerTestPage> {
   InAppWebViewSettings settings = InAppWebViewSettings(
     isInspectable: kDebugMode,
     mediaPlaybackRequiresUserGesture: false,
