@@ -7,16 +7,13 @@ import 'package:gap/gap.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_platform_interface/webview_flutter_platform_interface.dart';
-import 'package:webview_test/pages/long_duration_transition_page_route.dart';
-import 'package:webview_test/widgets/my_text.dart';
-import 'package:webview_test/utils/ui_helper.dart';
+
+import '../enums/platform_view_implementation_type.dart';
+import '../utils/long_duration_transition_page_route.dart';
+import '../utils/ui_helper.dart';
+import '../widgets/my_text.dart';
 
 const flutterVersion = 'v3.29.3';
-
-enum PlatformViewImplementationType {
-  hc, //hybrid composition
-  tlhc, //texture layer hybrid composition
-}
 
 enum TestWebsite {
   benchMarkTest,
@@ -107,7 +104,7 @@ class _WebviewPerformanceTestPageState extends State<WebviewPerformanceTestPage>
                     child: Text(PlatformViewImplementationType.tlhc.name),
                   ),
               ],
-            )
+            ),
           ],
         ),
       ),
@@ -158,7 +155,7 @@ class _WebviewPerformanceTestPageState extends State<WebviewPerformanceTestPage>
                     child: Text(PlatformViewImplementationType.tlhc.name),
                   ),
               ],
-            )
+            ),
           ],
         ),
       ),
@@ -294,16 +291,18 @@ class _PeftTestWebViewFlutterState extends State<_PeftTestWebViewFlutter> {
       switch (widget.platformViewImplementationType) {
         case PlatformViewImplementationType.hc:
           webViewWidget = WebViewWidget.fromPlatformCreationParams(
-              params: AndroidWebViewWidgetCreationParams(
-            controller: _androidWebViewController!,
-            displayWithHybridComposition: true,
-          ));
+            params: AndroidWebViewWidgetCreationParams(
+              controller: _androidWebViewController!,
+              displayWithHybridComposition: true,
+            ),
+          );
         case PlatformViewImplementationType.tlhc:
           webViewWidget = WebViewWidget.fromPlatformCreationParams(
-              params: AndroidWebViewWidgetCreationParams(
-            controller: _androidWebViewController!,
-            displayWithHybridComposition: false,
-          ));
+            params: AndroidWebViewWidgetCreationParams(
+              controller: _androidWebViewController!,
+              displayWithHybridComposition: false,
+            ),
+          );
       }
     } else {
       webViewWidget = WebViewWidget(controller: _controller!);

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:webview_test/widgets/my_text.dart';
-import 'package:webview_test/pages/webview_performance_test_page.dart';
+
+import '../widgets/my_text.dart';
+import 'webview_scroll_test_page.dart';
+import 'webview_performance_test_page.dart';
 
 class TestListPage extends StatelessWidget {
   const TestListPage({super.key});
@@ -38,6 +40,17 @@ class TestListPage extends StatelessWidget {
               );
             },
             title: MyText.large('네이버 지도'),
+          ),
+          ListTile(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const WebviewScrollTestPage(),
+                ),
+              );
+            },
+            title: MyText.large('웹뷰 스크롤'),
           ),
         ],
       ),
