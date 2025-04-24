@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../enums/test_website.dart';
 import '../widgets/my_text.dart';
@@ -58,7 +59,14 @@ class TestListPage extends StatelessWidget {
             title: MyText.large('웹뷰 스크롤'),
           ),
           ListTile(
-            onTap: () {
+            onTap: () async {
+              await Permission.storage.request();
+              await Permission.photos.request();
+              await Permission.camera.request();
+
+              if (!context.mounted) {
+                return;
+              }
               Navigator.push(
                 context,
                 MaterialPageRoute(

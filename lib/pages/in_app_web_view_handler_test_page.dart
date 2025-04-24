@@ -8,10 +8,13 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mime/mime.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:uuid/v4.dart';
 
+import '../enums/test_website.dart';
 import '../widgets/my_text.dart';
 
-WebViewEnvironment? webViewEnvironment;
+const String _customScheme = 'app-bridge-file';
 
 class InAppWebViewHandlerTestPage extends StatefulWidget {
   const InAppWebViewHandlerTestPage({super.key});
@@ -21,14 +24,6 @@ class InAppWebViewHandlerTestPage extends StatefulWidget {
 }
 
 class _InAppWebViewHandlerTestPageState extends State<InAppWebViewHandlerTestPage> {
-  InAppWebViewSettings settings = InAppWebViewSettings(
-    isInspectable: kDebugMode,
-    mediaPlaybackRequiresUserGesture: false,
-    allowsInlineMediaPlayback: true,
-    iframeAllow: 'camera; microphone',
-    iframeAllowFullscreen: true,
-  );
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,9 +32,8 @@ class _InAppWebViewHandlerTestPageState extends State<InAppWebViewHandlerTestPag
         child: Column(
           children: <Widget>[
             Expanded(
-              child: _InAppWebViewHandlerWidget(
-                settings: settings,
-                url: 'http://192.168.50.147:8080/index.html',
+              child: _InAppWebViewAllowFileUrlTest(
+                url: TestWebsite.localDartShelfServerTest.url,
               ),
             ),
           ],
@@ -50,88 +44,187 @@ class _InAppWebViewHandlerTestPageState extends State<InAppWebViewHandlerTestPag
 }
 
 class _InAppWebViewHandlerWidget extends StatelessWidget {
-  const _InAppWebViewHandlerWidget({
+  _InAppWebViewHandlerWidget({
     required this.url,
-    required this.settings,
   });
 
   final String url;
-  final InAppWebViewSettings settings;
+  final InAppWebViewSettings settings = InAppWebViewSettings(
+    isInspectable: kDebugMode,
+    mediaPlaybackRequiresUserGesture: false,
+    iframeAllow: 'camera; microphone',
+    iframeAllowFullscreen: true,
+    allowsInlineMediaPlayback: true,
+    allowFileAccess: false,
+    allowFileAccessFromFileURLs: false,
+    allowUniversalAccessFromFileURLs: false,
+    javaScriptCanOpenWindowsAutomatically: true,
+    javaScriptEnabled: true,
+  );
 
   @override
   Widget build(BuildContext context) {
     return InAppWebView(
-      webViewEnvironment: webViewEnvironment,
       initialSettings: settings,
+      initialUrlRequest: URLRequest(url: WebUri(url)),
       onWebViewCreated: (controller) async {
-        await controller.platform.clearAllCache();
-
-        controller.addJavaScriptHandler(
-          handlerName: 'getDeviceInfo',
-          callback: (_) async {
-            late final BaseDeviceInfo deviceInfo;
-            if (Platform.isAndroid) {
-              deviceInfo = await DeviceInfoPlugin().androidInfo;
-            } else {
-              deviceInfo = await DeviceInfoPlugin().iosInfo;
-            }
-            return deviceInfo.data;
-          },
-        );
-
-        controller.addJavaScriptHandler(
-          handlerName: 'getGalleryImage',
-          callback: (_) async {
-            final image = await ImagePicker().pickImage(source: ImageSource.gallery);
-            if (image == null) {
-              return null;
-            } else {
-              final imageBytes = await image.readAsBytes();
-              final mimeType = lookupMimeType(image.path);
-              final uriData = UriData.fromBytes(imageBytes, mimeType: mimeType!);
-              log(uriData.uri.toString());
-              return {
-                'url': uriData.uri.toString(),
-              };
-            }
-          },
-        );
-
-        controller.addJavaScriptHandler(
-          handlerName: 'pushPage',
-          callback: (args) async {
-            final url = args.first as String;
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => Scaffold(
-                  appBar: AppBar(
-                    title: MyText.large('Pushed Page'),
-                  ),
-                  body: _InAppWebViewHandlerWidget(
-                    settings: settings,
-                    url: url,
-                  ),
-                ),
-              ),
-            );
-          },
-        );
-
-        controller.addJavaScriptHandler(
-          handlerName: 'popPage',
-          callback: (_) async {
-            Navigator.pop(context);
-            return null;
-          },
-        );
-
-        // const localTestWebsite = 'http://192.168.50.147:8080/index.html';
-        controller.loadUrl(urlRequest: URLRequest(url: WebUri(url)));
-      },
-      onConsoleMessage: (controller, consoleMessage) {
-        log(consoleMessage.toString());
+        await initJavascriptHandler(controller, context);
       },
     );
   }
+}
+
+class _InAppWebViewAllowFileUrlTest extends StatelessWidget {
+  _InAppWebViewAllowFileUrlTest({
+    required this.url,
+  });
+
+  final String url;
+
+  final InAppWebViewSettings settings = InAppWebViewSettings(
+    isInspectable: kDebugMode,
+    mediaPlaybackRequiresUserGesture: false,
+    allowsInlineMediaPlayback: true,
+    iframeAllow: 'camera; microphone',
+    iframeAllowFullscreen: true,
+    allowFileAccess: true,
+    allowFileAccessFromFileURLs: true,
+    allowUniversalAccessFromFileURLs: true,
+    allowContentAccess: true,
+    javaScriptCanOpenWindowsAutomatically: true,
+    javaScriptEnabled: true,
+    resourceCustomSchemes: [_customScheme],
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    return InAppWebView(
+      initialSettings: settings,
+      initialUrlRequest: URLRequest(url: WebUri(url)),
+      onLoadResourceWithCustomScheme: (controller, request) async {
+        if (request.url.scheme == _customScheme) {
+          final filePath = request.url.toString().replaceFirst('$_customScheme:', '', 0);
+          final file = File(filePath);
+          final mimeType = lookupMimeType(filePath);
+          final response = CustomSchemeResponse(
+            data: await file.readAsBytes(),
+            contentType: mimeType!,
+          );
+          return response;
+        }
+        return null;
+      },
+      onWebViewCreated: (controller) async {
+        await initJavascriptHandler(controller, context);
+      },
+    );
+  }
+}
+
+Future<void> initJavascriptHandler(
+  InAppWebViewController controller,
+  BuildContext context,
+) async {
+  await controller.platform.clearAllCache();
+
+  controller.addJavaScriptHandler(
+    handlerName: 'getDeviceInfo',
+    callback: (_) async {
+      late final BaseDeviceInfo deviceInfo;
+      if (Platform.isAndroid) {
+        deviceInfo = await DeviceInfoPlugin().androidInfo;
+      } else {
+        deviceInfo = await DeviceInfoPlugin().iosInfo;
+      }
+      return deviceInfo.data;
+    },
+  );
+
+  controller.addJavaScriptHandler(
+    handlerName: 'pickImageByDataUrl',
+    callback: (_) async {
+      final image = await ImagePicker().pickImage(source: ImageSource.gallery);
+      if (image == null) {
+        return null;
+      } else {
+        final imageBytes = await image.readAsBytes();
+        final mimeType = lookupMimeType(image.path);
+        final uriData = UriData.fromBytes(imageBytes, mimeType: mimeType!);
+        log(uriData.uri.toString());
+        return {
+          'url': uriData.uri.toString(),
+        };
+      }
+    },
+  );
+
+  controller.addJavaScriptHandler(
+    handlerName: 'pickImageByCustomScheme',
+    callback: (_) async {
+      final image = await ImagePicker().pickImage(source: ImageSource.gallery);
+
+      if (image == null) {
+        return null;
+      } else {
+        final cachedDirectory = await getApplicationCacheDirectory();
+        final fileExtension = image.path.split('.').last;
+        final newImagePath = '${cachedDirectory.path}/${const UuidV4().generate()}.$fileExtension';
+        await File(image.path).copy(newImagePath);
+        final fileUrl = Uri(scheme: _customScheme, path: newImagePath);
+        log(fileUrl.toString());
+        return {
+          'url': fileUrl.toString(),
+        };
+      }
+    },
+  );
+
+  controller.addJavaScriptHandler(
+    handlerName: 'pickImageByFileUrl',
+    callback: (_) async {
+      final image = await ImagePicker().pickImage(source: ImageSource.gallery);
+
+      if (image == null) {
+        return null;
+      } else {
+        final cachedDirectory = await getApplicationCacheDirectory();
+        final fileExtension = image.path.split('.').last;
+        final newImagePath = '${cachedDirectory.path}/${const UuidV4().generate()}.$fileExtension';
+        await File(image.path).copy(newImagePath);
+        final fileUrl = Uri(scheme: _customScheme, path: newImagePath);
+        log(fileUrl.toString());
+        return {
+          'url': fileUrl.toString(),
+        };
+      }
+    },
+  );
+
+  controller.addJavaScriptHandler(
+    handlerName: 'pushPage',
+    callback: (args) async {
+      final url = args.first as String;
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Scaffold(
+            appBar: AppBar(
+              title: MyText.large('Pushed Page'),
+            ),
+            body: _InAppWebViewHandlerWidget(
+              url: url,
+            ),
+          ),
+        ),
+      );
+    },
+  );
+
+  controller.addJavaScriptHandler(
+    handlerName: 'popPage',
+    callback: (_) async {
+      Navigator.pop(context);
+      return null;
+    },
+  );
 }

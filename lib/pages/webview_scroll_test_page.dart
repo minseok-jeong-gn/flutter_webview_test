@@ -14,9 +14,9 @@ import 'package:webview_flutter_platform_interface/webview_flutter_platform_inte
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
 import '../enums/platform_view_implementation_type.dart';
+import '../enums/test_website.dart';
 import '../enums/web_view_test_case.dart';
 import '../widgets/my_text.dart';
-import 'webview_performance_test_page.dart';
 
 class WebviewScrollTestPage extends StatefulWidget {
   const WebviewScrollTestPage({super.key});
