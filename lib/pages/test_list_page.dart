@@ -1,5 +1,9 @@
+import 'dart:developer';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
+import '../enums/test_website.dart';
 import '../widgets/my_text.dart';
 import 'in_app_web_view_handler_test_page.dart';
 import 'webview_scroll_test_page.dart';
@@ -63,6 +67,22 @@ class TestListPage extends StatelessWidget {
               );
             },
             title: MyText.large('인앱 웹뷰 핸들러'),
+          ),
+          ListTile(
+            onTap: () {
+              WebSocket.connect('ws://192.168.50.147:8082').then((ws) async {
+                ws.listen((message) {
+                  log('receive from websocket server: $message');
+                });
+                for (int i = 0; i < 10; ++i) {
+                  ws.add('${DateTime.now()}');
+                  await Future.delayed(const Duration(milliseconds: 500));
+                }
+
+                ws.close();
+              });
+            },
+            title: MyText.large('웹소켓 테스트'),
           ),
         ],
       ),
