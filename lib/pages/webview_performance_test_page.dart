@@ -9,22 +9,12 @@ import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_platform_interface/webview_flutter_platform_interface.dart';
 
 import '../enums/platform_view_implementation_type.dart';
+import '../enums/test_website.dart';
 import '../utils/long_duration_transition_page_route.dart';
 import '../utils/ui_helper.dart';
 import '../widgets/my_text.dart';
 
 const flutterVersion = 'v3.29.3';
-
-enum TestWebsite {
-  benchMarkTest,
-  naverMap,
-  ;
-
-  String get url => switch (this) {
-        benchMarkTest => 'https://browserbench.org/',
-        naverMap => 'https://map.naver.com/',
-      };
-}
 
 class WebviewPerformanceTestPage extends StatefulWidget {
   const WebviewPerformanceTestPage({
