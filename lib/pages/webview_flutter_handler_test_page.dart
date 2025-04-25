@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -10,6 +11,26 @@ import '../enums/test_website.dart';
 import '../utils/log_util.dart';
 import '../widgets/my_text.dart';
 
+class JsMessageHandlerResult {
+  const JsMessageHandlerResult({
+    required this.resultOk,
+    this.data,
+    this.errorMessage,
+  });
+
+  final Map<String, Object?>? data;
+  final bool resultOk;
+  final Object? errorMessage;
+
+  Map<String, Object?> toJson() => {
+        'data': data,
+        'resultOk': resultOk,
+        'errorMessage': errorMessage,
+      };
+}
+
+typedef JsMessageHandler = FutureOr<JsMessageHandlerResult> Function(Map<String, Object?>? params, WebViewController controller);
+
 class WebviewFlutterHandlerTestPage extends StatefulWidget {
   const WebviewFlutterHandlerTestPage({super.key});
 
@@ -19,6 +40,26 @@ class WebviewFlutterHandlerTestPage extends StatefulWidget {
 
 class _WebviewFlutterHandlerTestPageState extends State<WebviewFlutterHandlerTestPage> {
   late final WebViewController controller = WebViewController();
+
+  FutureOr<JsMessageHandlerResult> _handleGetDeviceInfo(
+    Map<String, Object?>? params,
+    WebViewController controller,
+  ) async {
+    late final BaseDeviceInfo deviceInfo;
+    if (Platform.isAndroid) {
+      deviceInfo = await DeviceInfoPlugin().androidInfo;
+    } else {
+      deviceInfo = await DeviceInfoPlugin().iosInfo;
+    }
+
+    return JsMessageHandlerResult(
+      resultOk: true,
+      data: deviceInfo.data,
+      errorMessage: null,
+    );
+  }
+
+  late final Map<String, JsMessageHandler> _messageHandler = {'getDeviceInfo': _handleGetDeviceInfo};
 
   @override
   void initState() {
@@ -44,26 +85,18 @@ class _WebviewFlutterHandlerTestPageState extends State<WebviewFlutterHandlerTes
                 'method': final String method,
                 'seq': final int seq,
               }) {
-            final params = jsonObj['params'] as Map<String, dynamic>?;
-            switch (method) {
-              case 'getDeviceInfo':
-                late final BaseDeviceInfo deviceInfo;
-                if (Platform.isAndroid) {
-                  deviceInfo = await DeviceInfoPlugin().androidInfo;
-                } else {
-                  deviceInfo = await DeviceInfoPlugin().iosInfo;
-                }
-
-                final retVal = {
-                  'seq': seq,
-                  'data': deviceInfo.data,
-                  'resultOk': true,
-                  'method': 'getDeviceInfo',
-                };
-
-                final javascriptCode = 'window.appBridge.onListenAppBridgeMessage(${jsonEncode(retVal)})';
-                controller.runJavaScript(javascriptCode);
-                break;
+            final params = jsonObj['params'] as Map<String, Object?>?;
+            if (_messageHandler.containsKey(method)) {
+              final result = await _messageHandler[method]!(params, controller);
+              final retVal = {
+                ...result.toJson(),
+                'seq': seq,
+                'method': method,
+              };
+              final javascriptCode = 'window.appBridge.onListenAppBridgeMessage(${jsonEncode(retVal)})';
+              controller.runJavaScript(javascriptCode);
+            } else {
+              throw Exception('Can\'t find the method: $method');
             }
           } else {
             Log.d('Error on onMessageReceived: ${jsMessage.message}');
