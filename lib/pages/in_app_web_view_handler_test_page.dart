@@ -187,14 +187,9 @@ Future<void> initJavascriptHandler(
       if (image == null) {
         return null;
       } else {
-        final cachedDirectory = await getApplicationCacheDirectory();
-        final fileExtension = image.path.split('.').last;
-        final newImagePath = '${cachedDirectory.path}/${const UuidV4().generate()}.$fileExtension';
-        await File(image.path).copy(newImagePath);
-        final fileUrl = Uri(scheme: _customScheme, path: newImagePath);
-        log(fileUrl.toString());
+        final fileUri = Uri.file(image.path);
         return {
-          'url': fileUrl.toString(),
+          'url': fileUri.toString(),
         };
       }
     },
