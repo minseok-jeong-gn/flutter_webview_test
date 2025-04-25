@@ -87,14 +87,25 @@ class _WebviewFlutterHandlerTestPageState extends State<WebviewFlutterHandlerTes
               }) {
             final params = jsonObj['params'] as Map<String, Object?>?;
             if (_messageHandler.containsKey(method)) {
-              final result = await _messageHandler[method]!(params, controller);
-              final retVal = {
-                ...result.toJson(),
-                'seq': seq,
-                'method': method,
-              };
-              final javascriptCode = 'window.appBridge.onListenAppBridgeMessage(${jsonEncode(retVal)})';
-              controller.runJavaScript(javascriptCode);
+              try {
+                final result = await _messageHandler[method]!(params, controller);
+                final retVal = {
+                  ...result.toJson(),
+                  'seq': seq,
+                  'method': method,
+                };
+                final javascriptCode = 'window.appBridge.onListenAppBridgeMessage(${jsonEncode(retVal)})';
+                controller.runJavaScript(javascriptCode);
+              } catch (error) {
+                final retVal = {
+                  'resultOk': false,
+                  'error': error.toString(),
+                  'seq': seq,
+                  'method': method,
+                };
+                final javascriptCode = 'window.appBridge.onListenAppBridgeMessage(${jsonEncode(retVal)})';
+                controller.runJavaScript(javascriptCode);
+              }
             } else {
               throw Exception('Can\'t find the method: $method');
             }
