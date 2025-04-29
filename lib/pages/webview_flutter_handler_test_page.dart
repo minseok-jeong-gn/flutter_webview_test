@@ -6,6 +6,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
+import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
 import '../enums/test_website.dart';
 import '../utils/log_util.dart';
@@ -59,24 +60,41 @@ class _WebviewFlutterHandlerTestPageState extends State<WebviewFlutterHandlerTes
     );
   }
 
-  late final Map<String, JsMessageHandler> _messageHandler = {'getDeviceInfo': _handleGetDeviceInfo};
+  FutureOr<JsMessageHandlerResult> _handleConcat(
+    Map<String, Object?>? params,
+    WebViewController controller,
+  ) {
+    final concatResult = params?.values.cast<String>().join();
+    return JsMessageHandlerResult(resultOk: true, data: {'data': concatResult});
+  }
+
+  late final Map<String, JsMessageHandler> _messageHandler = {
+    'getDeviceInfo': _handleGetDeviceInfo,
+    'concat': _handleConcat,
+  };
 
   @override
   void initState() {
     super.initState();
 
+    final debugginEnableCompleter = Completer<void>();
     if (Platform.isAndroid) {
-      AndroidWebViewController.enableDebugging(true);
+      AndroidWebViewController.enableDebugging(true).then((_) => debugginEnableCompleter.complete());
+    } else {
+      if (controller.platform case final WebKitWebViewController webKitController) {
+        webKitController.setInspectable(true).then((_) => debugginEnableCompleter.complete());
+      } else {
+        debugginEnableCompleter.complete();
+      }
     }
 
-    controller.clearCache().then((_) {
-      controller.setJavaScriptMode(JavaScriptMode.unrestricted);
-      controller.loadRequest(Uri.parse(TestWebsite.localDartShelfServerTest2.url));
-      controller.setOnConsoleMessage((consoleMsg) {
+    debugginEnableCompleter.future.then((_) async {
+      await controller.clearCache();
+      await controller.setJavaScriptMode(JavaScriptMode.unrestricted);
+      await controller.setOnConsoleMessage((consoleMsg) {
         Log.d(consoleMsg.message);
       });
-
-      controller.addJavaScriptChannel(
+      await controller.addJavaScriptChannel(
         'appBridgeChannel',
         onMessageReceived: (jsMessage) async {
           final jsonObj = jsonDecode(jsMessage.message);
@@ -114,6 +132,7 @@ class _WebviewFlutterHandlerTestPageState extends State<WebviewFlutterHandlerTes
           }
         },
       );
+      await controller.loadRequest(Uri.parse(TestWebsite.localDartShelfServerTest2.url));
     });
   }
 
