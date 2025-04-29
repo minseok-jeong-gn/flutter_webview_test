@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
@@ -60,6 +61,33 @@ class _WebviewFlutterHandlerTestPageState extends State<WebviewFlutterHandlerTes
     );
   }
 
+  // ignore: prefer_function_declarations_over_variables
+  late final JsMessageHandler _handleCheckPermission = (params, controller) async {
+    final permissionList = List<String>.from(params['permissions'] as List);
+    final result = <Map>[];
+    for (final permission in permissionList) {
+      switch (permission) {
+        case 'camera':
+          final permissionStatus = await Permission.camera.status;
+          result.add({
+            permission: permission,
+            'status': permissionStatus.name,
+          });
+          break;
+        // TODO: below cases
+        //  "camera", "gallery", "notification", "location" permissions
+        default:
+          result.add({
+            permission: permission,
+            'status': 'denied',
+          });
+          break;
+      }
+    }
+
+    return JsMessageHandlerResult(resultOk: true, data: {'data': result});
+  };
+
   FutureOr<JsMessageHandlerResult> _handleConcat(
     Map<String, Object?> params,
     WebViewController controller,
@@ -71,6 +99,7 @@ class _WebviewFlutterHandlerTestPageState extends State<WebviewFlutterHandlerTes
   late final Map<String, JsMessageHandler> _messageHandler = {
     'getDeviceInfo': _handleGetDeviceInfo,
     'concat': _handleConcat,
+    'checkPermission': _handleCheckPermission,
   };
 
   @override
