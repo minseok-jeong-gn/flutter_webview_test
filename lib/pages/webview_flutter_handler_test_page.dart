@@ -112,7 +112,7 @@ class _WebviewFlutterHandlerTestPageState extends State<WebviewFlutterHandlerTes
                   'seq': seq,
                   'method': method,
                 };
-                final javascriptCode = 'window.appBridge.onListenAppBridgeMessage(${jsonEncode(retVal)})';
+                final javascriptCode = 'window.appBridge._onListenAppBridgeMessage(${jsonEncode(retVal)})';
                 controller.runJavaScript(javascriptCode);
               } catch (error) {
                 final retVal = {
@@ -121,7 +121,7 @@ class _WebviewFlutterHandlerTestPageState extends State<WebviewFlutterHandlerTes
                   'seq': seq,
                   'method': method,
                 };
-                final javascriptCode = 'window.appBridge.onListenAppBridgeMessage(${jsonEncode(retVal)})';
+                final javascriptCode = 'window.appBridge._onListenAppBridgeMessage(${jsonEncode(retVal)})';
                 controller.runJavaScript(javascriptCode);
               }
             } else {
