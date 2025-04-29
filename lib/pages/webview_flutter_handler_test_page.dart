@@ -30,7 +30,7 @@ class JsMessageHandlerResult {
       };
 }
 
-typedef JsMessageHandler = FutureOr<JsMessageHandlerResult> Function(Map<String, Object?>? params, WebViewController controller);
+typedef JsMessageHandler = FutureOr<JsMessageHandlerResult> Function(Map<String, Object?> params, WebViewController controller);
 
 class WebviewFlutterHandlerTestPage extends StatefulWidget {
   const WebviewFlutterHandlerTestPage({super.key});
@@ -43,7 +43,7 @@ class _WebviewFlutterHandlerTestPageState extends State<WebviewFlutterHandlerTes
   late final WebViewController controller = WebViewController();
 
   FutureOr<JsMessageHandlerResult> _handleGetDeviceInfo(
-    Map<String, Object?>? params,
+    Map<String, Object?> params,
     WebViewController controller,
   ) async {
     late final BaseDeviceInfo deviceInfo;
@@ -61,10 +61,10 @@ class _WebviewFlutterHandlerTestPageState extends State<WebviewFlutterHandlerTes
   }
 
   FutureOr<JsMessageHandlerResult> _handleConcat(
-    Map<String, Object?>? params,
+    Map<String, Object?> params,
     WebViewController controller,
   ) {
-    final concatResult = params?.values.cast<String>().join();
+    final concatResult = params.values.cast<String>().join();
     return JsMessageHandlerResult(resultOk: true, data: {'data': concatResult});
   }
 
@@ -102,8 +102,8 @@ class _WebviewFlutterHandlerTestPageState extends State<WebviewFlutterHandlerTes
               case {
                 'method': final String method,
                 'seq': final int seq,
+                'params': final Map<String, Object?> params,
               }) {
-            final params = jsonObj['params'] as Map<String, Object?>?;
             if (_messageHandler.containsKey(method)) {
               try {
                 final result = await _messageHandler[method]!(params, controller);
