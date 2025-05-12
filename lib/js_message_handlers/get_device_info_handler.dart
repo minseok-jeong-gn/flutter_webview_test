@@ -3,8 +3,8 @@ import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
 
-import 'javascript_message_handler.dart';
-import 'javascript_message_handler_result.dart';
+import 'base/javascript_message_handler.dart';
+import 'base/javascript_message_handler_result.dart';
 
 class GetDeviceInfoHandler implements JavascriptMessageHandler {
   @override

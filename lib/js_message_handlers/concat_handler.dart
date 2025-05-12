@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'javascript_message_handler.dart';
-import 'javascript_message_handler_result.dart';
+import 'base/javascript_message_handler.dart';
+import 'base/javascript_message_handler_result.dart';
 
 class ConcatHandler implements JavascriptMessageHandler {
   @override

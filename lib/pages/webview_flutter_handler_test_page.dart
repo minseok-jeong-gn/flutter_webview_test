@@ -11,7 +11,7 @@ import '../enums/test_website.dart';
 import '../js_message_handlers/check_permission_handler.dart';
 import '../js_message_handlers/concat_handler.dart';
 import '../js_message_handlers/get_device_info_handler.dart';
-import '../js_message_handlers/javascript_message_handler.dart';
+import '../js_message_handlers/base/javascript_message_handler.dart';
 import '../utils/log_util.dart';
 import '../widgets/my_text.dart';
 

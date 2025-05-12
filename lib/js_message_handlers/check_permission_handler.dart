@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-import 'javascript_message_handler.dart';
-import 'javascript_message_handler_result.dart';
+import 'base/javascript_message_handler.dart';
+import 'base/javascript_message_handler_result.dart';
 
 class CheckPermissionHandler implements JavascriptMessageHandler {
   @override
