@@ -73,7 +73,7 @@ class _WebviewFlutterHandlerTestPageState extends State<WebviewFlutterHandlerTes
               }) {
             if (_handlerMap.containsKey(method)) {
               try {
-                final result = await _handlerMap[method]!.call(params, controller);
+                final result = await _handlerMap[method]!(params, controller);
                 final retVal = {
                   ...result.toJson(),
                   'seq': seq,
