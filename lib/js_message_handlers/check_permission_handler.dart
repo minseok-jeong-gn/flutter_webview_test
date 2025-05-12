@@ -11,7 +11,7 @@ class CheckPermissionHandler implements JavascriptMessageHandler {
   String get messageName => 'checkPermission';
 
   @override
-  FutureOr<JavascriptMessageHandlerResult> handle(
+  FutureOr<JavascriptMessageHandlerResult> call(
     Map<String, Object?> params,
     WebViewController controller,
   ) async {

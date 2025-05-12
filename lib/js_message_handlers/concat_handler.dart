@@ -8,7 +8,7 @@ class ConcatHandler implements JavascriptMessageHandler {
   String get messageName => 'concat';
 
   @override
-  FutureOr<JavascriptMessageHandlerResult> handle(
+  FutureOr<JavascriptMessageHandlerResult> call(
     Map<String, Object?> params,
     _,
   ) {

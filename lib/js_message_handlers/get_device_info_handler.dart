@@ -11,7 +11,7 @@ class GetDeviceInfoHandler implements JavascriptMessageHandler {
   String get messageName => 'getDeviceInfo';
 
   @override
-  FutureOr<JavascriptMessageHandlerResult> handle(
+  FutureOr<JavascriptMessageHandlerResult> call(
     Map<String, Object?> params,
     _,
   ) async {
