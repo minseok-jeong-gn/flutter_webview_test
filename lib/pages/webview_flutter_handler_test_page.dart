@@ -12,6 +12,7 @@ import '../js_message_handlers/check_permission_handler.dart';
 import '../js_message_handlers/concat_handler.dart';
 import '../js_message_handlers/get_device_info_handler.dart';
 import '../js_message_handlers/base/javascript_message_handler.dart';
+import '../models/gn_location.dart';
 import '../utils/log_util.dart';
 import '../widgets/my_text.dart';
 
@@ -32,6 +33,10 @@ class _WebviewFlutterHandlerTestPageState extends State<WebviewFlutterHandlerTes
   ];
 
   late final Map<String, JavascriptMessageHandler> _handlerMap;
+
+  late final GNLocation _currentLocation = GNLocation(latitude: 37.5503, longitude: 126.9971);
+
+  late final Timer _fakeLocationChangeTimer;
 
   @override
   void initState() {
@@ -95,7 +100,21 @@ class _WebviewFlutterHandlerTestPageState extends State<WebviewFlutterHandlerTes
         },
       );
       await controller.loadRequest(Uri.parse(TestWebsite.localDartShelfServerTest2.url));
+      await Future.delayed(const Duration(seconds: 1));
+      _fakeLocationChangeTimer = Timer.periodic(
+        const Duration(milliseconds: 500),
+        (_) {
+          final javascriptCode = 'window.appBridge._onListenLocationChangeMessage(${jsonEncode(_currentLocation.toMap())})';
+          controller.runJavaScript(javascriptCode);
+        },
+      );
     });
+  }
+
+  @override
+  void dispose() {
+    _fakeLocationChangeTimer.cancel();
+    super.dispose();
   }
 
   @override
